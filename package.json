@@ -1,0 +1,17 @@
+{
+  "name": "ngx-ticker",
+  "version": "1.0.0",
+  "description": "Nigerian Exchange Group stock ticker & analyser",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "scrape": "node scraper.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}
