@@ -8,7 +8,7 @@
     "scrape": "node scraper.js"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
+    "cheerio": "^1.0.0-rc.12",
     "electron-store": "^8.1.0"
   },
   "devDependencies": {
