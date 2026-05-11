@@ -92,7 +92,8 @@ async function getMarketStatus() {
     if (canRequest()) {
       trackRequest();
       const data = await apiGet('/api/ngxdata/market-status');
-      const isOpen = data.status === 'open';
+      // Response: { success: true, data: { status, is_open } }
+      const isOpen = data.data ? data.data.is_open : data.is_open;
       cachedMarketStatus = {
         isOpen,
         isPreOpen: false,
@@ -160,22 +161,25 @@ async function fetchAllStocks() {
   trackRequest();
   const data = await apiGet('/api/ngxdata/stocks');
 
-  if (!Array.isArray(data)) {
+  // Response format: { stocks: [...] }
+  const list = data.stocks || data.data || data;
+  if (!Array.isArray(list)) {
     throw new Error('Unexpected response format');
   }
 
   const stocks = {};
-  for (const item of data) {
+  for (const item of list) {
     const symbol = (item.symbol || '').toUpperCase().trim();
     const price  = parseFloat(item.current_price) || 0;
     if (!symbol || price <= 0) continue;
 
+    // API gives us previous_close directly — use it
+    const prevClose   = parseFloat(item.previous_close) || price;
     const changePct   = parseFloat(item.change_percent) || 0;
-    const prevClose   = changePct !== 0
-      ? parseFloat((price / (1 + changePct / 100)).toFixed(2))
-      : price;
     const priceChange = parseFloat((price - prevClose).toFixed(2));
-    const marketCap   = price * (parseFloat(item.shares_outstanding) || 0);
+    // API gives market_cap directly
+    const marketCap   = parseFloat(item.market_cap) || 0;
+    const tradeDate   = item.trade_date ? item.trade_date.slice(0, 10) : '—';
 
     stocks[symbol] = {
       symbol,
@@ -188,7 +192,9 @@ async function fetchAllStocks() {
       sharesOut:    parseFloat(item.shares_outstanding) || 0,
       marketCap,
       sector:       item.sector || '—',
+      market:       item.market || '—',
       peRatio:      parseFloat(item.pe_ratio) || null,
+      tradeDate,
       source:       'NGXPulse API',
     };
   }

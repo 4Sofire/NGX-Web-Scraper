@@ -315,7 +315,7 @@ async function renderWatchlist() {
         <div class="stat"><span class="lbl">Prev Close</span><span class="val">${fmt(s.prevClose)}</span></div>
         <div class="stat"><span class="lbl">Volume</span><span class="val">${fmtVol(s.volume)}</span></div>
         <div class="stat"><span class="lbl">Mkt Cap</span><span class="val">${fmtCap(s.marketCap)}</span></div>
-        ${s.peRatio ? `<div class="stat"><span class="lbl">P/E</span><span class="val">${s.peRatio.toFixed(1)}</span></div>` : ''}
+        <div class="stat"><span class="lbl">Trade Date</span><span class="val" style="font-size:9px;">${s.tradeDate||'—'}</span></div>
       </div>
       <div class="card-bottom">
         <div style="display:flex;gap:6px;align-items:center;">
