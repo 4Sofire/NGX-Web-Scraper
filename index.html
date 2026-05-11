@@ -35,6 +35,7 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 
 /* Status bar */
 #statusbar { display:flex; align-items:center; justify-content:space-between; padding:3px 12px; background:var(--bg2); border-bottom:1px solid var(--border); font-size:10px; color:var(--muted); flex-shrink:0; }
+#req-counter { font-family:var(--font); font-size:9px; }
 
 /* Tabs */
 #tabs { display:flex; background:var(--bg2); border-bottom:1px solid var(--border); flex-shrink:0; }
@@ -57,14 +58,15 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 .card:hover { border-color:#3d4752; }
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; }
 .sym { font-family:var(--font); font-size:12px; font-weight:700; color:var(--blue); }
-.company { font-size:10px; color:var(--muted); margin-top:2px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.company { font-size:10px; color:var(--muted); margin-top:2px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sector-tag { font-size:9px; color:var(--blue); opacity:.6; margin-top:1px; }
 .price-block { text-align:right; }
 .price { font-family:var(--font); font-size:14px; font-weight:700; }
 .change { font-family:var(--font); font-size:10px; margin-top:2px; }
-.card-mid { display:flex; gap:12px; margin-top:6px; padding-top:5px; border-top:1px solid var(--border); }
-.stat { display:flex; flex-direction:column; gap:1px; }
+.card-mid { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; padding-top:5px; border-top:1px solid var(--border); }
+.stat { display:flex; flex-direction:column; gap:1px; min-width:60px; }
 .stat .lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-.stat .val { font-family:var(--font); font-size:11px; }
+.stat .val { font-family:var(--font); font-size:10px; }
 .card-bottom { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
 
 .pos { color:var(--green); } .neg { color:var(--red); } .neu { color:var(--muted); }
@@ -83,7 +85,7 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 /* Catalogue */
 .sym-row { display:flex; align-items:center; padding:6px 12px; gap:8px; cursor:pointer; transition:background .12s; }
 .sym-row:hover { background:var(--bg3); }
-.sym-row .sl { font-family:var(--font); font-size:11px; color:var(--blue); min-width:100px; }
+.sym-row .sl { font-family:var(--font); font-size:11px; color:var(--blue); min-width:90px; }
 .sym-row .sn { font-size:10px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .sym-row .sp { font-family:var(--font); font-size:11px; min-width:70px; text-align:right; }
 .sym-row .sc { font-family:var(--font); font-size:10px; min-width:55px; text-align:right; }
@@ -94,24 +96,24 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 /* Analysis */
 .a-card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin:4px 8px; }
 .a-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.a-sym { font-family:var(--font); font-size:12px; font-weight:700; color:var(--blue); }
+.a-sym  { font-family:var(--font); font-size:12px; font-weight:700; color:var(--blue); }
 .a-name { font-size:10px; color:var(--muted); margin-top:2px; }
+.a-sector { font-size:9px; color:var(--blue); opacity:.6; }
 .a-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:6px; }
 .a-metric { background:var(--bg3); border-radius:5px; padding:5px 8px; }
 .a-metric .lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-.a-metric .val { font-family:var(--font); font-size:12px; margin-top:2px; }
+.a-metric .val { font-family:var(--font); font-size:11px; margin-top:2px; }
 .bar-wrap { background:var(--bg3); border-radius:5px; padding:5px 8px; margin-bottom:5px; }
 .bar-lbl { display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-bottom:3px; }
 .bar-track { height:4px; background:var(--bg); border-radius:2px; overflow:hidden; }
 .bar-fill { height:100%; border-radius:2px; transition:width .4s; }
 .chart-box { background:var(--bg3); border-radius:5px; padding:6px 8px; }
 .chart-lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
-.data-note { font-size:9px; color:var(--muted); text-align:center; padding:6px; font-style:italic; }
 
 /* Footer */
 #footer { padding:5px 12px; border-top:1px solid var(--border); background:var(--bg2); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-#footer label { font-size:10px; color:var(--muted); }
-#footer select { background:var(--bg3); border:1px solid var(--border); color:var(--text); font-size:10px; border-radius:4px; padding:2px 4px; outline:none; cursor:pointer; margin-left:4px; }
+.refresh-btn { font-size:10px; color:var(--blue); background:none; border:1px solid var(--border); border-radius:4px; padding:2px 8px; cursor:pointer; }
+.refresh-btn:hover { border-color:var(--blue); }
 
 .empty { padding:24px 16px; text-align:center; color:var(--muted); font-size:12px; line-height:1.8; }
 </style>
@@ -137,7 +139,7 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 
 <div id="statusbar">
   <span id="last-update">Connecting…</span>
-  <span id="src-badge" style="font-size:9px;font-family:monospace;color:var(--muted);"></span>
+  <span id="req-counter">0/100 req today</span>
 </div>
 
 <div id="tabs">
@@ -146,19 +148,16 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
   <div class="tab"        data-tab="analysis">Analysis</div>
 </div>
 
-<!-- Watchlist -->
 <div class="panel active" id="panel-watchlist">
   <div class="search-wrap"><input id="wl-filter" placeholder="Filter watchlist…"></div>
   <div class="scroll" id="ticker-list"><div class="empty">Add stocks from the "All Stocks" tab</div></div>
 </div>
 
-<!-- Catalogue -->
 <div class="panel" id="panel-catalogue">
   <div class="search-wrap"><input id="cat-filter" placeholder="Search symbol or company…"></div>
   <div class="scroll" id="symbol-list"><div class="empty">Loading…</div></div>
 </div>
 
-<!-- Analysis -->
 <div class="panel" id="panel-analysis">
   <div class="scroll" id="analysis-list" style="padding:4px 0;">
     <div class="empty">Add stocks to watchlist to see analysis</div>
@@ -166,16 +165,12 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); height:
 </div>
 
 <div id="footer">
-  <label>Refresh: <select id="refresh-sel">
-    <option value="10000">10 s</option>
-    <option value="30000" selected>30 s</option>
-    <option value="60000">1 min</option>
-    <option value="300000">5 min</option>
-  </select></label>
+  <button class="refresh-btn" id="refresh-btn">↻ Refresh</button>
   <span id="wl-count" style="font-size:10px;color:var(--muted);">0 watching</span>
 </div>
 
 <script>
+(function() {
 const api = window.electronAPI;
 let allStocks = {}, allHistory = {}, activeTab = 'watchlist';
 let watchlist = JSON.parse(localStorage.getItem('ngx-watchlist') || '[]');
@@ -184,7 +179,12 @@ let watchlist = JSON.parse(localStorage.getItem('ngx-watchlist') || '[]');
 document.getElementById('btn-close').onclick    = () => api.closeApp();
 document.getElementById('btn-minimize').onclick = () => api.minimizeApp();
 document.getElementById('btn-pin').onclick      = () => api.togglePin();
-document.getElementById('refresh-sel').onchange = e => api.setRefreshRate(+e.target.value);
+document.getElementById('refresh-btn').onclick  = async () => {
+  document.getElementById('refresh-btn').textContent = '↻ …';
+  const result = await api.manualRefresh();
+  document.getElementById('refresh-btn').textContent = '↻ Refresh';
+  if (result.error) alert(result.error);
+};
 
 // Tabs
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
@@ -197,10 +197,10 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 
 // WAT clock
 function tickClock() {
-  const wat  = new Date(Date.now() + 3600000);
-  const pad  = n => String(n).padStart(2,'0');
+  const wat = new Date(Date.now() + 3600000);
+  const p   = n => String(n).padStart(2,'0');
   document.getElementById('wat-clock').textContent =
-    `WAT ${pad(wat.getUTCHours())}:${pad(wat.getUTCMinutes())}:${pad(wat.getUTCSeconds())}`;
+    `WAT ${p(wat.getUTCHours())}:${p(wat.getUTCMinutes())}:${p(wat.getUTCSeconds())}`;
 }
 setInterval(tickClock, 1000); tickClock();
 
@@ -211,73 +211,74 @@ function applyMarket(s) {
   document.getElementById('pdot').style.background =
     s.isOpen ? 'var(--green)' : s.color === 'amber' ? 'var(--amber)' : 'var(--red)';
 }
-api.getMarketStatus().then(applyMarket);
-setInterval(() => api.getMarketStatus().then(applyMarket), 60000);
+api.getMarketStatus().then(applyMarket).catch(console.error);
+setInterval(() => api.getMarketStatus().then(applyMarket).catch(console.error), 60000);
 
 // Stock updates
-api.onStockUpdate(({ stocks, history, liveDataAvailable, stockCount, marketStatus }) => {
+api.onStockUpdate(({ stocks, history, liveDataAvailable, stockCount, requestsToday, marketStatus, error }) => {
   allStocks  = stocks;
   allHistory = history;
   applyMarket(marketStatus);
 
   const ts  = new Date().toLocaleTimeString('en-NG', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   const upd = document.getElementById('last-update');
-  if (liveDataAvailable)    { upd.textContent = `Live ✓ ${ts}`;      upd.style.color = 'var(--green)'; }
-  else if (stockCount > 0)  { upd.textContent = `Cached · ${ts}`;    upd.style.color = 'var(--amber)'; }
-  else                      { upd.textContent = 'No data — retrying…'; upd.style.color = 'var(--red)'; }
+  if (error && !liveDataAvailable) {
+    upd.textContent = `Error: ${error}`; upd.style.color = 'var(--red)';
+  } else if (liveDataAvailable) {
+    upd.textContent = `Live ✓ ${ts}`;   upd.style.color = 'var(--green)';
+  } else if (stockCount > 0) {
+    upd.textContent = `Cached · ${ts}`; upd.style.color = 'var(--amber)';
+  } else {
+    upd.textContent = 'No data — retrying…'; upd.style.color = 'var(--red)';
+  }
 
-  document.getElementById('src-badge').textContent = stockCount > 0 ? `AFX/NGX · EOD · ${stockCount} stocks` : '';
+  document.getElementById('req-counter').textContent = `${requestsToday}/100 req today`;
   render();
 });
 
 // Formatters
 const fmt    = n => (n == null || isNaN(n)) ? '—' : '₦' + n.toLocaleString('en-NG', { minimumFractionDigits:2, maximumFractionDigits:2 });
 const fmtVol = n => { if (!n) return '—'; if (n>=1e9) return (n/1e9).toFixed(2)+'B'; if (n>=1e6) return (n/1e6).toFixed(2)+'M'; if (n>=1e3) return (n/1e3).toFixed(0)+'K'; return n.toLocaleString(); };
-const fmtC = (chg, pct) => {
-  if (chg == null || pct == null) return '—';
-  const arrow = pct > 0 ? '▲' : pct < 0 ? '▼' : '–';
-  const sign  = pct > 0 ? '+' : '';
-  return `${arrow} ${fmt(Math.abs(chg))} (${sign}${pct.toFixed(2)}%)`;
-};
-const cls  = v => v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
-const sigC = s => 'sig sig-' + (s || 'WAIT');
+const fmtCap = n => { if (!n) return '—'; if (n>=1e12) return '₦'+(n/1e12).toFixed(2)+'T'; if (n>=1e9) return '₦'+(n/1e9).toFixed(2)+'B'; if (n>=1e6) return '₦'+(n/1e6).toFixed(2)+'M'; return '₦'+n.toLocaleString(); };
+const cls    = v => v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+const sigC   = s => 'sig sig-' + (s || 'WAIT');
 
 // Sparkline
 function drawSpark(canvas, data, up, w, h) {
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
   if (!data || data.length < 2) return;
-  const min = Math.min(...data), max = Math.max(...data), rng = max - min || 1;
-  const pts = data.map((v,i) => ({ x: i*(w/(data.length-1)), y: h-((v-min)/rng)*(h-4)-2 }));
-  const col = up === false ? '#f85149' : '#3fb950';
+  const min = Math.min(...data), max = Math.max(...data), rng = max-min||1;
+  const pts = data.map((v,i) => ({ x:i*(w/(data.length-1)), y:h-((v-min)/rng)*(h-4)-2 }));
+  const col = up===false ? '#f85149' : '#3fb950';
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
-  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.lineTo(pts[pts.length-1].x, h); ctx.lineTo(pts[0].x, h); ctx.closePath();
-  const g = ctx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0, up===false ? 'rgba(248,81,73,.2)' : 'rgba(63,185,80,.2)');
-  g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.lineTo(pts[pts.length-1].x,h); ctx.lineTo(pts[0].x,h); ctx.closePath();
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, up===false?'rgba(248,81,73,.2)':'rgba(63,185,80,.2)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g; ctx.fill();
 }
 
 function render() {
-  if (activeTab === 'watchlist') renderWatchlist();
-  if (activeTab === 'catalogue') renderCatalogue();
-  if (activeTab === 'analysis')  renderAnalysis();
+  if (activeTab==='watchlist') renderWatchlist();
+  if (activeTab==='catalogue') renderCatalogue();
+  if (activeTab==='analysis')  renderAnalysis();
 }
 
 // ── Watchlist ─────────────────────────────────────────────────────────────────
 async function renderWatchlist() {
-  const filter = (document.getElementById('wl-filter').value || '').toLowerCase();
+  const filter = (document.getElementById('wl-filter').value||'').toLowerCase();
   const el = document.getElementById('ticker-list');
   document.getElementById('wl-count').textContent = watchlist.length + ' watching';
 
   const toShow = watchlist.filter(s =>
     !filter || s.toLowerCase().includes(filter) ||
-    (allStocks[s]?.name || '').toLowerCase().includes(filter));
+    (allStocks[s]?.name||'').toLowerCase().includes(filter));
 
-  if (toShow.length === 0) {
-    el.innerHTML = watchlist.length === 0
+  if (!toShow.length) {
+    el.innerHTML = watchlist.length===0
       ? '<div class="empty">Add stocks from the "All Stocks" tab</div>'
       : '<div class="empty">No matches</div>';
     return;
@@ -285,56 +286,56 @@ async function renderWatchlist() {
 
   const rows = await Promise.all(toShow.map(async sym => {
     const s = allStocks[sym]; if (!s) return null;
-    const hist = allHistory[sym] || [];
-    const up   = s.changePct == null ? null : s.changePct >= 0;
+    const hist = allHistory[sym]||[];
+    const up   = s.changePct==null ? null : s.changePct>=0;
     const { signal, strength } = await api.getSignal(sym);
     return { sym, s, hist, up, signal, strength };
   }));
 
-  el.innerHTML = '';
+  el.innerHTML='';
   rows.filter(Boolean).forEach(({ sym, s, hist, up, signal, strength }) => {
     const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
+    card.className='card';
+    card.innerHTML=`
       <div class="card-top">
         <div>
           <div class="sym">${sym}</div>
           <div class="company" title="${s.name}">${s.name}</div>
+          <div class="sector-tag">${s.sector}</div>
         </div>
         <div class="price-block">
           <div class="price ${cls(s.changePct)}">${fmt(s.price)}</div>
-          <div class="change ${cls(s.changePct)}">${fmtC(s.priceChange, s.changePct)}</div>
+          <div class="change ${cls(s.changePct)}">
+            ${s.priceChange!=null?(s.priceChange>=0?'▲ +':'▼ ')+fmt(Math.abs(s.priceChange)):'—'}
+            ${s.changePct!=null?'('+( s.changePct>=0?'+':'')+s.changePct.toFixed(2)+'%)':''}
+          </div>
         </div>
       </div>
       <div class="card-mid">
-        <div class="stat">
-          <span class="lbl">Prev Close</span>
-          <span class="val">${fmt(s.prevClose)}</span>
-        </div>
-        <div class="stat">
-          <span class="lbl">Volume</span>
-          <span class="val">${fmtVol(s.volume)}</span>
-        </div>
+        <div class="stat"><span class="lbl">Prev Close</span><span class="val">${fmt(s.prevClose)}</span></div>
+        <div class="stat"><span class="lbl">Volume</span><span class="val">${fmtVol(s.volume)}</span></div>
+        <div class="stat"><span class="lbl">Mkt Cap</span><span class="val">${fmtCap(s.marketCap)}</span></div>
+        ${s.peRatio ? `<div class="stat"><span class="lbl">P/E</span><span class="val">${s.peRatio.toFixed(1)}</span></div>` : ''}
       </div>
       <div class="card-bottom">
         <div style="display:flex;gap:6px;align-items:center;">
-          <span class="${sigC(signal)}">${signal}${strength ? ' '+strength+'%' : ''}</span>
+          <span class="${sigC(signal)}">${signal}${strength?' '+strength+'%':''}</span>
           <button class="rm-btn">✕ REMOVE</button>
         </div>
         <canvas id="spark-${sym}" width="80" height="22"></canvas>
       </div>`;
 
     card.querySelector('.rm-btn').addEventListener('click', () => {
-      watchlist = watchlist.filter(x => x !== sym);
+      watchlist = watchlist.filter(x => x!==sym);
       localStorage.setItem('ngx-watchlist', JSON.stringify(watchlist));
       renderWatchlist();
-      document.getElementById('wl-count').textContent = watchlist.length + ' watching';
+      document.getElementById('wl-count').textContent = watchlist.length+' watching';
     });
 
     el.appendChild(card);
     requestAnimationFrame(() => {
-      const cv = document.getElementById('spark-' + sym);
-      if (cv) drawSpark(cv, hist, up !== false, 80, 22);
+      const cv = document.getElementById('spark-'+sym);
+      if (cv) drawSpark(cv, hist, up!==false, 80, 22);
     });
   });
 }
@@ -342,34 +343,33 @@ document.getElementById('wl-filter').addEventListener('input', renderWatchlist);
 
 // ── Catalogue ─────────────────────────────────────────────────────────────────
 function renderCatalogue() {
-  const filter = (document.getElementById('cat-filter').value || '').toLowerCase();
+  const filter = (document.getElementById('cat-filter').value||'').toLowerCase();
   const el = document.getElementById('symbol-list');
   const syms = Object.keys(allStocks)
     .filter(s => !filter || s.toLowerCase().includes(filter) ||
-      (allStocks[s]?.name || '').toLowerCase().includes(filter))
+      (allStocks[s]?.name||'').toLowerCase().includes(filter) ||
+      (allStocks[s]?.sector||'').toLowerCase().includes(filter))
     .sort();
 
-  if (!syms.length) { el.innerHTML = '<div class="empty">No stocks found</div>'; return; }
-
-  el.innerHTML = '';
+  if (!syms.length) { el.innerHTML='<div class="empty">No stocks found</div>'; return; }
+  el.innerHTML='';
   syms.forEach(sym => {
-    const s      = allStocks[sym];
-    const inList = watchlist.includes(sym);
-    const row    = document.createElement('div');
-    row.className = 'sym-row';
-    row.innerHTML = `
+    const s=allStocks[sym], inList=watchlist.includes(sym);
+    const row=document.createElement('div');
+    row.className='sym-row';
+    row.innerHTML=`
       <span class="sl">${sym}</span>
-      <span class="sn" title="${s.name}">${s.name}</span>
+      <span class="sn" title="${s.name} · ${s.sector}">${s.name}</span>
       <span class="sp ${cls(s.changePct)}">${fmt(s.price)}</span>
-      <span class="sc ${cls(s.changePct)}">${s.changePct != null ? (s.changePct>=0?'+':'') + s.changePct.toFixed(2)+'%' : '—'}</span>
-      <button class="add-btn ${inList ? 'added' : ''}">${inList ? '✓' : '+'}</button>`;
+      <span class="sc ${cls(s.changePct)}">${s.changePct!=null?(s.changePct>=0?'+':'')+s.changePct.toFixed(2)+'%':'—'}</span>
+      <button class="add-btn ${inList?'added':''}">${inList?'✓':'+'}</button>`;
     row.querySelector('.add-btn').addEventListener('click', e => {
       e.stopPropagation();
       if (!watchlist.includes(sym)) {
         watchlist.push(sym);
         localStorage.setItem('ngx-watchlist', JSON.stringify(watchlist));
         renderCatalogue();
-        document.getElementById('wl-count').textContent = watchlist.length + ' watching';
+        document.getElementById('wl-count').textContent=watchlist.length+' watching';
       }
     });
     el.appendChild(row);
@@ -380,73 +380,61 @@ document.getElementById('cat-filter').addEventListener('input', renderCatalogue)
 // ── Analysis ──────────────────────────────────────────────────────────────────
 async function renderAnalysis() {
   const el = document.getElementById('analysis-list');
-  if (!watchlist.length) { el.innerHTML = '<div class="empty">Add stocks to watchlist to see analysis</div>'; return; }
+  if (!watchlist.length) { el.innerHTML='<div class="empty">Add stocks to watchlist to see analysis</div>'; return; }
 
   const items = await Promise.all(watchlist.map(async sym => {
-    const s = allStocks[sym]; if (!s) return null;
-    const hist = allHistory[sym] || [];
-    const up   = s.changePct == null ? null : s.changePct >= 0;
-    const { signal, strength, rsi } = await api.getSignal(sym);
-    return { sym, s, hist, up, signal, strength, rsi };
+    const s=allStocks[sym]; if (!s) return null;
+    const hist=allHistory[sym]||[];
+    const up=s.changePct==null?null:s.changePct>=0;
+    const {signal,strength,rsi}=await api.getSignal(sym);
+    return {sym,s,hist,up,signal,strength,rsi};
   }));
 
-  el.innerHTML = '<div class="data-note">Source: afx.kwayisi.org/ngx — end of day NGX data</div>';
-
-  items.filter(Boolean).forEach(({ sym, s, hist, up, signal, strength, rsi }) => {
-    const rsiColor = !rsi ? 'var(--muted)' : rsi < 35 ? 'var(--green)' : rsi > 65 ? 'var(--red)' : 'var(--amber)';
-    const rsiLabel = !rsi ? '—' : rsi < 35 ? 'Oversold' : rsi > 65 ? 'Overbought' : 'Neutral';
-    const card = document.createElement('div');
-    card.className = 'a-card';
-    card.innerHTML = `
+  el.innerHTML='';
+  items.filter(Boolean).forEach(({sym,s,hist,up,signal,strength,rsi}) => {
+    const rsiColor=!rsi?'var(--muted)':rsi<35?'var(--green)':rsi>65?'var(--red)':'var(--amber)';
+    const rsiLabel=!rsi?'—':rsi<35?'Oversold':rsi>65?'Overbought':'Neutral';
+    const card=document.createElement('div');
+    card.className='a-card';
+    card.innerHTML=`
       <div class="a-hdr">
-        <div><div class="a-sym">${sym}</div><div class="a-name">${s.name}</div></div>
-        <span class="${sigC(signal)}">${signal}${strength ? ' '+strength+'%' : ''}</span>
+        <div>
+          <div class="a-sym">${sym}</div>
+          <div class="a-name">${s.name}</div>
+          <div class="a-sector">${s.sector}${s.peRatio?` · P/E ${s.peRatio.toFixed(1)}`:''}</div>
+        </div>
+        <span class="${sigC(signal)}">${signal}${strength?' '+strength+'%':''}</span>
       </div>
       <div class="a-grid">
-        <div class="a-metric">
-          <div class="lbl">Current Price</div>
-          <div class="val ${cls(s.changePct)}">${fmt(s.price)}</div>
-        </div>
-        <div class="a-metric">
-          <div class="lbl">Previous Close</div>
-          <div class="val">${fmt(s.prevClose)}</div>
-        </div>
-        <div class="a-metric">
-          <div class="lbl">Change (₦)</div>
-          <div class="val ${cls(s.changePct)}">${s.priceChange != null ? (s.priceChange>=0?'+':'') + fmt(s.priceChange) : '—'}</div>
-        </div>
-        <div class="a-metric">
-          <div class="lbl">Change (%)</div>
-          <div class="val ${cls(s.changePct)}">${s.changePct != null ? (s.changePct>=0?'+':'') + s.changePct.toFixed(2)+'%' : '—'}</div>
-        </div>
-        <div class="a-metric">
-          <div class="lbl">Volume</div>
-          <div class="val">${fmtVol(s.volume)}</div>
-        </div>
+        <div class="a-metric"><div class="lbl">Price</div><div class="val ${cls(s.changePct)}">${fmt(s.price)}</div></div>
+        <div class="a-metric"><div class="lbl">Prev Close</div><div class="val">${fmt(s.prevClose)}</div></div>
+        <div class="a-metric"><div class="lbl">Change ₦</div><div class="val ${cls(s.changePct)}">${s.priceChange!=null?(s.priceChange>=0?'+':'')+fmt(Math.abs(s.priceChange)):'—'}</div></div>
+        <div class="a-metric"><div class="lbl">Change %</div><div class="val ${cls(s.changePct)}">${s.changePct!=null?(s.changePct>=0?'+':'')+s.changePct.toFixed(2)+'%':'—'}</div></div>
+        <div class="a-metric"><div class="lbl">Volume</div><div class="val">${fmtVol(s.volume)}</div></div>
+        <div class="a-metric"><div class="lbl">Mkt Cap</div><div class="val">${fmtCap(s.marketCap)}</div></div>
+        <div class="a-metric"><div class="lbl">Shares O/S</div><div class="val">${fmtVol(s.sharesOut)}</div></div>
+        <div class="a-metric"><div class="lbl">P/E Ratio</div><div class="val">${s.peRatio?s.peRatio.toFixed(2):'—'}</div></div>
       </div>
-      ${rsi != null ? `
+      ${rsi!=null?`
       <div class="bar-wrap">
-        <div class="bar-lbl">
-          <span>RSI (${hist.length} ticks)</span>
-          <span style="color:${rsiColor}">${rsi} — ${rsiLabel}</span>
-        </div>
+        <div class="bar-lbl"><span>RSI (${hist.length} ticks)</span><span style="color:${rsiColor}">${rsi} — ${rsiLabel}</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${rsi}%;background:${rsiColor}"></div></div>
-      </div>` : ''}
+      </div>`:''}
       <div class="chart-box">
         <div class="chart-lbl">Price history (${hist.length} refreshes)</div>
         <canvas id="asp-${sym}" style="display:block;width:100%;height:40px;"></canvas>
       </div>`;
 
     el.appendChild(card);
-    requestAnimationFrame(() => {
-      const cv = document.getElementById('asp-' + sym);
-      if (cv) { cv.width = card.clientWidth - 40; cv.height = 40; drawSpark(cv, hist, up !== false, cv.width, 40); }
+    requestAnimationFrame(()=>{
+      const cv=document.getElementById('asp-'+sym);
+      if (cv){cv.width=card.clientWidth-40;cv.height=40;drawSpark(cv,hist,up!==false,cv.width,40);}
     });
   });
 }
 
-// Boot
-document.getElementById('wl-count').textContent = watchlist.length + ' watching';
+document.getElementById('wl-count').textContent = watchlist.length+' watching';
+})();
 </script>
 </body>
 </html>

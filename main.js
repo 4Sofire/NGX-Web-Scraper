@@ -1,57 +1,110 @@
 const { app, BrowserWindow, ipcMain, screen } = require('electron');
-const path    = require('path');
-const https   = require('https');
-const http    = require('http');
-const zlib    = require('zlib');
-const cheerio = require('cheerio');
+const path  = require('path');
+const https = require('https');
+const zlib  = require('zlib');
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const API_KEY  = 'ngxpulse_1l33crmyz9si54tt';
+const BASE_URL = 'ngxpulse.ng';  // no www
+
+// ── Rate limit tracker ────────────────────────────────────────────────────────
+// Personal tier: 10 req/min, 100 req/day
+// Strategy: fetch all stocks in 1 call every 30s during market hours,
+//           every 5 min outside market hours → well within 100/day
+let requestsToday = 0;
+let lastDayReset  = new Date().toDateString();
+
+function trackRequest() {
+  const today = new Date().toDateString();
+  if (today !== lastDayReset) { requestsToday = 0; lastDayReset = today; }
+  requestsToday++;
+  console.log(`[API] request #${requestsToday} today`);
+}
+
+function canRequest() {
+  const today = new Date().toDateString();
+  if (today !== lastDayReset) { requestsToday = 0; lastDayReset = today; }
+  return requestsToday < 98; // leave 2 buffer
+}
 
 // ── HTTP helper ───────────────────────────────────────────────────────────────
-function fetchUrl(url, timeoutMs = 15000) {
+function apiGet(endpoint) {
   return new Promise((resolve, reject) => {
-    try {
-      const parsed  = new URL(url);
-      const lib     = parsed.protocol === 'https:' ? https : http;
-      const options = {
-        hostname: parsed.hostname,
-        path:     parsed.pathname + parsed.search,
-        method:   'GET',
-        timeout:  timeoutMs,
-        headers: {
-          'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          'Accept':          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate',
-          'Connection':      'keep-alive',
-          'Cache-Control':   'no-cache',
-        },
-      };
-      const req = lib.request(options, (res) => {
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          return fetchUrl(res.headers.location, timeoutMs).then(resolve).catch(reject);
+    console.log(`[API] GET https://${BASE_URL}${endpoint}`);
+    const options = {
+      hostname: BASE_URL,
+      path:     endpoint,
+      method:   'GET',
+      timeout:  15000,
+      headers: {
+        'X-API-Key':      API_KEY,
+        'Content-Type':   'application/json',
+        'Accept':         'application/json',
+        'User-Agent':     'NGX-Ticker-Desktop/1.0',
+        'Accept-Encoding':'gzip, deflate',
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      if (res.statusCode === 429) {
+        return reject(new Error('Rate limit hit (429)'));
+      }
+      if (res.statusCode === 401) {
+        return reject(new Error('Invalid API key (401)'));
+      }
+      if (res.statusCode < 200 || res.statusCode >= 400) {
+        return reject(new Error(`HTTP ${res.statusCode}`));
+      }
+
+      const chunks = [];
+      const enc    = res.headers['content-encoding'];
+      let stream   = res;
+      if      (enc === 'gzip')    stream = res.pipe(zlib.createGunzip());
+      else if (enc === 'deflate') stream = res.pipe(zlib.createInflate());
+      else if (enc === 'br')      stream = res.pipe(zlib.createBrotliDecompress());
+
+      stream.on('data',  c  => chunks.push(c));
+      stream.on('end',   () => {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        console.log('[API raw response]', raw.slice(0, 500));
+        try {
+          resolve(JSON.parse(raw));
+        } catch (e) {
+          reject(new Error('JSON parse failed — got: ' + raw.slice(0, 200)));
         }
-        if (res.statusCode < 200 || res.statusCode >= 400) {
-          return reject(new Error(`HTTP ${res.statusCode}`));
-        }
-        const chunks = [];
-        const enc    = res.headers['content-encoding'];
-        let stream   = res;
-        if      (enc === 'gzip')    stream = res.pipe(zlib.createGunzip());
-        else if (enc === 'deflate') stream = res.pipe(zlib.createInflate());
-        else if (enc === 'br')      stream = res.pipe(zlib.createBrotliDecompress());
-        stream.on('data',  c  => chunks.push(c));
-        stream.on('end',   () => resolve(Buffer.concat(chunks).toString('utf8')));
-        stream.on('error', reject);
       });
-      req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
-      req.on('error',   reject);
-      req.end();
-    } catch (e) { reject(e); }
+      stream.on('error', reject);
+    });
+
+    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
+    req.on('error',   reject);
+    req.end();
   });
 }
 
-// ── Market status (WAT = UTC+1) ───────────────────────────────────────────────
-// NGX trades Mon–Fri 9:00 AM – 4:00 PM WAT (since April 27, 2026)
-function getMarketStatus() {
+// ── Market status ─────────────────────────────────────────────────────────────
+// First try the API, fall back to local time calculation
+let cachedMarketStatus = null;
+
+async function getMarketStatus() {
+  // Try API market-status endpoint (costs 1 request — only call occasionally)
+  try {
+    if (canRequest()) {
+      trackRequest();
+      const data = await apiGet('/api/ngxdata/market-status');
+      const isOpen = data.status === 'open';
+      cachedMarketStatus = {
+        isOpen,
+        isPreOpen: false,
+        label:  isOpen ? 'MARKET OPEN' : 'MARKET CLOSED',
+        color:  isOpen ? 'green' : 'red',
+      };
+      return cachedMarketStatus;
+    }
+  } catch (_) {}
+
+  // Fallback: calculate locally (WAT = UTC+1)
+  // NGX trades Mon–Fri 9:00 AM – 4:00 PM WAT
   const now  = new Date();
   const wat  = new Date(now.getTime() + 3600000);
   const day  = wat.getUTCDay();
@@ -85,6 +138,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration:  false,
       contextIsolation: true,
+      sandbox:          false,
       preload: path.join(__dirname, 'preload.js'),
     },
     backgroundColor: '#0d1117',
@@ -93,80 +147,53 @@ function createWindow() {
   startRefreshLoop();
 }
 
-// ── Scraper ───────────────────────────────────────────────────────────────────
-//
-// Source: afx.kwayisi.org/ngx/
-//
-// The page has a table with these columns:
-//   # | Company | Symbol | Price (NGN) | Change | Volume
-//
-// Pages: afx.kwayisi.org/ngx/           (page 1, ~50 stocks)
-//        afx.kwayisi.org/ngx/?page=2    (page 2)
-//        afx.kwayisi.org/ngx/?page=3    (page 3)  etc.
-//
-// Each stock also has its own page: afx.kwayisi.org/ngx/{symbol}.html
-// which has previous close, market cap, sector, 52-week high/low.
+// ── Fetch all stocks from API ─────────────────────────────────────────────────
+// GET /api/ngxdata/stocks
+// Returns: [{ symbol, name, current_price, change_percent, volume,
+//             shares_outstanding, sector, pe_ratio }, ...]
+async function fetchAllStocks() {
+  if (!canRequest()) {
+    console.log('[API] daily limit reached, skipping fetch');
+    return null;
+  }
 
-async function scrapeNGX() {
-  console.log('[AFX] scraping all pages…');
+  trackRequest();
+  const data = await apiGet('/api/ngxdata/stocks');
+
+  if (!Array.isArray(data)) {
+    throw new Error('Unexpected response format');
+  }
+
   const stocks = {};
+  for (const item of data) {
+    const symbol = (item.symbol || '').toUpperCase().trim();
+    const price  = parseFloat(item.current_price) || 0;
+    if (!symbol || price <= 0) continue;
 
-  // Scrape all pages in parallel (pages 1–5 covers all ~150 NGX equities)
-  await Promise.all([1, 2, 3, 4, 5].map(async (page) => {
-    const url = page === 1
-      ? 'https://afx.kwayisi.org/ngx/'
-      : `https://afx.kwayisi.org/ngx/?page=${page}`;
+    const changePct   = parseFloat(item.change_percent) || 0;
+    const prevClose   = changePct !== 0
+      ? parseFloat((price / (1 + changePct / 100)).toFixed(2))
+      : price;
+    const priceChange = parseFloat((price - prevClose).toFixed(2));
+    const marketCap   = price * (parseFloat(item.shares_outstanding) || 0);
 
-    try {
-      const html = await fetchUrl(url, 15000);
-      const $    = cheerio.load(html);
+    stocks[symbol] = {
+      symbol,
+      name:         item.name || symbol,
+      price,
+      prevClose,
+      priceChange,
+      changePct,
+      volume:       parseFloat(item.volume) || 0,
+      sharesOut:    parseFloat(item.shares_outstanding) || 0,
+      marketCap,
+      sector:       item.sector || '—',
+      peRatio:      parseFloat(item.pe_ratio) || null,
+      source:       'NGXPulse API',
+    };
+  }
 
-      // AFX table columns: rank | company | symbol | price | change | volume
-      $('table tbody tr').each((_, row) => {
-        const cols = $(row).find('td');
-        if (cols.length < 5) return;
-
-        const clean  = s => parseFloat((s || '').replace(/[,\s]/g, '')) || 0;
-        const colTxt = i => $(cols[i]).text().trim();
-
-        // Col 0 = rank (number), col 1 = company name, col 2 = symbol (link)
-        // col 3 = price, col 4 = change, col 5 = volume (if present)
-        const rankTxt = colTxt(0);
-        if (!/^\d+$/.test(rankTxt)) return;  // skip non-data rows
-
-        const name      = colTxt(1);
-        const symbol    = colTxt(2).toUpperCase().replace(/\s*\[.*?\]/g, '').trim();
-        const price     = clean(colTxt(3));
-        const changePct = parseFloat((colTxt(4) || '0').replace(/[+\s%]/g, '')) || 0;
-        const volume    = cols.length > 5 ? clean(colTxt(5)) : 0;
-
-        if (!symbol || price <= 0) return;
-
-        // Derive previous close from price and % change
-        const prevClose    = changePct !== 0
-          ? parseFloat((price / (1 + changePct / 100)).toFixed(2))
-          : price;
-        const priceChange  = parseFloat((price - prevClose).toFixed(2));
-
-        stocks[symbol] = {
-          symbol,
-          name:        name || symbol,
-          price,
-          prevClose,
-          priceChange,
-          changePct,
-          volume,
-          source:      'AFX/NGX',
-        };
-      });
-
-      console.log(`[AFX] page ${page}: running total ${Object.keys(stocks).length} stocks`);
-    } catch (e) {
-      console.log(`[AFX] page ${page} failed: ${e.message}`);
-    }
-  }));
-
-  console.log(`[AFX] total scraped: ${Object.keys(stocks).length} stocks`);
+  console.log(`[API] fetched ${Object.keys(stocks).length} stocks`);
   return stocks;
 }
 
@@ -199,27 +226,69 @@ function computeSignal(sym) {
   return { signal, strength: Math.round(strength), rsi };
 }
 
-// ── Refresh ───────────────────────────────────────────────────────────────────
+// ── Refresh loop ──────────────────────────────────────────────────────────────
+// Smart refresh rate:
+// - During market hours (9am-4pm WAT): every 5 minutes = max 84 calls/day for stocks
+// - Outside market hours: every 30 minutes (prices don't change anyway)
+// This keeps us well within the 100/day limit
+
+function getRefreshInterval() {
+  const wat  = new Date(Date.now() + 3600000);
+  const day  = wat.getUTCDay();
+  const hhmm = wat.getUTCHours() * 100 + wat.getUTCMinutes();
+  const isMarketHours = day >= 1 && day <= 5 && hhmm >= 900 && hhmm < 1600;
+  // Market hours 9am-4pm = 7hrs = 420min / 10min = 42 calls
+  // Outside hours: ~17hrs / 60min = ~17 calls
+  // Total: ~59 calls/day — safe within 100/day limit
+  return isMarketHours ? 10 * 60 * 1000 : 60 * 60 * 1000; // 10min or 60min
+}
+
 async function doRefresh() {
   try {
-    const data    = await scrapeNGX();
-    const gotData = Object.keys(data).length > 0;
+    const data    = await fetchAllStocks();
+    const gotData = data && Object.keys(data).length > 0;
     if (gotData) { updateHistory(data); stockData = data; }
+
+    const marketStatus = await getMarketStatus();
+
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('stock-update', {
         stocks:            stockData,
         history:           priceHistory,
         liveDataAvailable: gotData,
         stockCount:        Object.keys(stockData).length,
-        marketStatus:      getMarketStatus(),
+        requestsToday,
+        marketStatus,
       });
     }
-  } catch (e) { console.error('[refresh]', e.message); }
+
+    // Reschedule with smart interval
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setTimeout(doRefresh, getRefreshInterval());
+
+  } catch (e) {
+    console.error('[refresh]', e.message);
+    // On error, retry in 2 minutes
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setTimeout(doRefresh, 2 * 60 * 1000);
+
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const marketStatus = await getMarketStatus();
+      mainWindow.webContents.send('stock-update', {
+        stocks:            stockData,
+        history:           priceHistory,
+        liveDataAvailable: false,
+        stockCount:        Object.keys(stockData).length,
+        requestsToday,
+        marketStatus,
+        error: e.message,
+      });
+    }
+  }
 }
 
 async function startRefreshLoop() {
   await doRefresh();
-  refreshInterval = setInterval(doRefresh, 30000);
 }
 
 // ── IPC ───────────────────────────────────────────────────────────────────────
@@ -227,10 +296,15 @@ ipcMain.handle('get-all-symbols',   ()       => Object.keys(stockData).sort());
 ipcMain.handle('get-signal',        (_, sym) => computeSignal(sym));
 ipcMain.handle('get-history',       (_, sym) => priceHistory[sym] || []);
 ipcMain.handle('get-market-status', ()       => getMarketStatus());
-ipcMain.handle('set-refresh-rate',  (_, ms)  => {
-  if (refreshInterval) clearInterval(refreshInterval);
-  refreshInterval = setInterval(doRefresh, ms);
+ipcMain.handle('get-requests-today',()       => requestsToday);
+
+// Manual refresh triggered by user — costs 1 request
+ipcMain.handle('manual-refresh', async () => {
+  if (!canRequest()) return { error: 'Daily limit reached (100/day)' };
+  await doRefresh();
+  return { ok: true };
 });
+
 ipcMain.on('close-app',    () => app.quit());
 ipcMain.on('minimize-app', () => mainWindow && mainWindow.minimize());
 ipcMain.on('toggle-pin',   () => mainWindow && mainWindow.setAlwaysOnTop(!mainWindow.isAlwaysOnTop()));
