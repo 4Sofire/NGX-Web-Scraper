@@ -69,6 +69,3 @@ The app attempts to scrape live data from:
 | **WAIT** | Insufficient price history (< 5 ticks) |
 
 > These are **technical indicators only**, not financial advice. Always do your own research.
-
----
-11, macOS 12+, or Linux (Ubuntu 20+)
