@@ -1,4 +1,4 @@
-# NGX Ticker — Nigerian Exchange Desktop Widget
+# NGX Ticker-Nigerian Exchange Desktop Widget
 
 A compact always-on-top Electron desktop app that tracks Nigerian Exchange Group (NGX) stocks in real time with price analysis, sparklines, RSI, and buy/sell signals.
 
