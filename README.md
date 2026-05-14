@@ -71,10 +71,4 @@ The app attempts to scrape live data from:
 > These are **technical indicators only**, not financial advice. Always do your own research.
 
 ---
-
-## Requirements
-
-- Node.js 18+
-- npm
-- Internet connection (for live data)
-- Windows 10/11, macOS 12+, or Linux (Ubuntu 20+)
+11, macOS 12+, or Linux (Ubuntu 20+)
