@@ -43,7 +43,7 @@ The widget appears in the bottom-right corner of your screen.
 
 | Action | How |
 |--------|-----|
-| Add a stock | Go to **All Stocks** tab → click **+** next to any symbol |
+| Add a stock | Go to **All Stocks** tab, click **+** next to any symbol |
 | Remove a stock | **Right-click** its card in the Watchlist tab |
 | Pin / unpin on top | Click the **green dot** button in the title bar |
 | Minimise | Click the **yellow dot** button |
