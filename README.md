@@ -4,7 +4,7 @@
 
 ## Features
 
-- **Live prices** achieved using a personal tier API from ngxpulse.ng
+- **Live prices** real-time prices of stocks listed on the Nigerian Exchange
 - **Watchlist**-pick exactly which stocks you would like to follow
 - **All Stocks** catalogue-browse/search all available NGX equities
 - **Analysis tab**-Relative Strength indicator (RSI), day range bar, volume, price change %, and buy/sell/hold signal per stock
