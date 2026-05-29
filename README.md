@@ -1,7 +1,5 @@
 # NGX Ticker-Nigerian Exchange Desktop Widget
 
-An Electron desktop app that tracks Nigerian Exchange Group (NGX) stocks in real time with price analysis, sparklines, RSI, and buy/sell signals.
-
 ---
 
 ## Features
@@ -49,13 +47,6 @@ The widget appears in the bottom-right corner of your screen.
 | Minimise | Click the **yellow dot** button |
 | Close | Click the **red dot** button |
 | Refresh | Footer dropdown |
-
----
-
-## Data Sources
-
-The app attempts to scrape live data from:
-1. **NGX Pulse stock market API**-`https://ngxpulse.ng/api`
 
 ---
 
